@@ -2,7 +2,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { REQUEST_URL } from "../../utils/constants";
 
 interface Products {
-	id: number;
+	_id: number;
 	productName: string;
 	photoUrl: string;
 	price: number;
@@ -10,22 +10,17 @@ interface Products {
 }
 
 interface CreateUserRequest {
-	newData: {
-		id: number;
-		productName: string;
-		photoUrl: string;
-		price: number;
-		quantity: number;
-	};
+	productName: string;
+	quantity: number | null;
+	price: number | null;
+	photoUrl: string;
 }
 
 interface CreateUserResponse {
-	newData: {
-		productName: string;
-		photoUrl: string;
-		price: number;
-		quantity: number;
-	};
+	productName: string;
+	photoUrl: string;
+	price: number;
+	quantity: number;
 }
 
 export const productApi = createApi({
@@ -49,6 +44,15 @@ export const productApi = createApi({
 					body: newData,
 				}),
 			}),
+			deleteProduct: builder.mutation({
+				query: (_id) => ({
+					url: `products/${_id}`,
+					method: "DELETE",
+					headers: {
+						Authorization: `Bearer ${localStorage.removeItem("token")}`,
+					},
+				}),
+			}),
 		};
 	},
 });
@@ -56,4 +60,5 @@ export const productApi = createApi({
 export const {
 	useGetProductsQuery,
 	usePostProductMutation,
+	useDeleteProductMutation,
 } = productApi;

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
+	useDeleteProductMutation,
 	useGetProductsQuery,
 	usePostProductMutation,
 } from "../../../redux/api/productApi";
@@ -12,10 +13,11 @@ const Home: React.FC<HomeProps> = () => {
 	const navigate = useNavigate();
 	const [productName, setProductName] = useState("");
 	const [photoUrl, setPhotoUrl] = useState("");
-	const [price, setPrice] = useState("");
-	const [quantity, setQuantity] = useState("");
+	const [price, setPrice] = useState<number | null>(null);
+	const [quantity, setQuantity] = useState<number | null>(null);
 	const { data: products = [], refetch } = useGetProductsQuery();
 	const [postProduct] = usePostProductMutation();
+	const [deleteProduct] = useDeleteProductMutation();
 	console.log(products);
 
 	useEffect(() => {
@@ -43,11 +45,15 @@ const Home: React.FC<HomeProps> = () => {
 			refetch();
 			setProductName("");
 			setPhotoUrl("");
-			setPrice("");
-			setQuantity("");
+			setPrice(null);
+			setQuantity(null);
 		} catch (error) {
 			console.error("Error while posting product:", error);
 		}
+	};
+
+	const handleDeleteProduct = async (_id: number) => {
+		await deleteProduct(_id);
 	};
 
 	return (
@@ -73,14 +79,14 @@ const Home: React.FC<HomeProps> = () => {
 					label="Price"
 					variant="outlined"
 					value={price}
-					onChange={(e) => setPrice(e.target.value)}
+					onChange={(e) => setPrice(+e.target.value)}
 				/>
 				<TextField
 					id="outlined-basic"
 					label="Quantity"
 					variant="outlined"
 					value={quantity}
-					onChange={(e) => setQuantity(e.target.value)}
+					onChange={(e) => setQuantity(+e.target.value)}
 				/>
 				<div>
 					<button onClick={handlePost}>Add</button>
@@ -88,11 +94,14 @@ const Home: React.FC<HomeProps> = () => {
 			</div>
 			<div className={scss.cards}>
 				{products.map((item) => (
-					<div className={scss.card} key={item.id}>
+					<div className={scss.card} key={item._id}>
 						<h1>{item.productName}</h1>
 						<img src={item.photoUrl} alt={item.productName} />
 						<h3>{item.price}</h3>
 						<h3>{item.quantity}</h3>
+						<button onClick={() => handleDeleteProduct(item._id)}>
+							Delete
+						</button>
 					</div>
 				))}
 			</div>
